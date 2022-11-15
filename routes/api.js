@@ -6,29 +6,33 @@ router.get('/notes', (req, res) => {
     console.log(fileContent)
     const notesData = JSON.parse(fileContent);
     res.json(notesData) 
-    //"utf-8", function(err, data) {
-        //res.json(json.parse(data))
-    
-
-})
+    })
 
 router.post('/notes', (req, res) => {
-    // read the file
-    // parse the contents
-    const { title, text} = req.body
-    if (!title || !text) {
-       return res.status(404).json({ "message": "Not found"})
-    }
+    fs.readFile(path.join(__dirname, "db", "db.json"), "utf-8", function (err, data) {
+        const notesData = json.parse(data)
+        
+        const { title, text } = req.body
+        if (!title || !text) {
+           return res.status(404).json({ "message": "Not found"})
+        }
 
-    const newNote = {
+        const newNote = {
         ...req.body, 
         id: Math.random()
-    }
+        }
 
     notesData.push(newNote)
-    // write the file
+    
+    fs.writeFile(path.join(__dirname, "db", "db.json"), json.stringify(notesData), function (err) {
+        if (err) {
+            res.status(500).json(err)
+            return
+        }
+        res.status(200).json(addedNote)
+    })
 
-})
+});
 
 router.delete('/notes/:id', (req, res) => {
     fs.readFile(path.join(__dirname, "db", "db.json"), "utf-8", function(err, data) {
@@ -59,4 +63,4 @@ router.delete('/notes/:id', (req, res) => {
 })
 
 module.exports = router
-
+})
